@@ -1,0 +1,12 @@
+{
+	"name": "nomads-and-empires",
+	"authors": [
+		"Kadin Tucker"
+	],
+	"dependencies": {
+		"d2d": "~>1.6.3"
+	},
+	"description": "A historical game involving nomands versus empires",
+	"copyright": "Copyright © 2018, Kadin Tucker",
+	"license": "proprietary"
+}
