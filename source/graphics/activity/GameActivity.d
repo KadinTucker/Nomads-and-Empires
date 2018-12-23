@@ -27,10 +27,17 @@ class GameActivity : Activity {
     }
 
     override void draw() {
-        this.container.renderer.drawColor = Color(95, 115, 55);
+        this.container.renderer.drawColor = Color(255, 255, 255);
+        foreach(town; this.world.allTowns) {
+            foreach(connect; town.connections) {
+                this.container.renderer.draw(town.location + this.pan + new iVector(25, 25), 
+                        connect.location + this.pan + new iVector(25, 25));
+            }
+        }
         foreach(town; this.world.allTowns) {
             this.container.renderer.copy(this.townTexture, town.location.x + this.pan.x, town.location.y + this.pan.y);
         }
+        this.container.renderer.drawColor = Color(95, 115, 55);
         if(this.container.keyboard.allKeys[SDLK_UP].isPressed) {
             this.pan.y += 14;
         }

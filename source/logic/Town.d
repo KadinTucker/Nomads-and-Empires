@@ -50,4 +50,4 @@ NameSet french = NameSet("pa ris mar seille ly on tou louse nice nan tes stras b
         le hav re tou lon gre nob le di jon an gers le mans or le ans rou en a vi gnon char tres".split(),
         2, 3);
 
-NameSet greek = NameSet("a thens thes sa ly pat ras la ris sa her a kli on".split(), 2, 4);
+NameSet greek = NameSet("a thens thes sa ly pat ras la ris sa her ak li on".split(), 2, 4);
