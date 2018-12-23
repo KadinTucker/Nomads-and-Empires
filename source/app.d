@@ -1,8 +1,6 @@
 module app;
 
-import nomads.graphics.activity.GameActivity;
-
-import d2d;
+import nomads;
 
 void main() {
 	Display display = new Display(500, 400);

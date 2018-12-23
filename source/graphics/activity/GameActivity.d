@@ -2,7 +2,6 @@ module nomads.graphics.activity.GameActivity;
 
 import nomads;
 
-import d2d;
 import std.random;
 
     // Random colors for generating stylized map
@@ -17,21 +16,32 @@ import std.random;
 class GameActivity : Activity {
 
     Texture townTexture; ///The texture used for towns
-    iVector[] townLocations; ///The location of each town in the game
-    Town[] towns; ///All of the towns in this game
+    World world; ///the world in this game
+    iVector pan; ///The panning on the map
 
     this(Display container) {
         super(container);
         this.townTexture = new Texture(loadImage("res/town.png"), container.renderer);
-        //Test towns
-        townLocations ~= new iVector(100, 200);
-        townLocations ~= new iVector(400, 250);
+        this.world = new World(12);
+        this.pan = new iVector(0, 0);
     }
 
     override void draw() {
         this.container.renderer.drawColor = Color(95, 115, 55);
-        for(int i = 0; i < this.townLocations.length; i++) {
-            this.container.renderer.copy(this.townTexture, townLocations[i].x - 25, townLocations[i].y - 25);
+        foreach(town; this.world.allTowns) {
+            this.container.renderer.copy(this.townTexture, town.location.x + this.pan.x, town.location.y + this.pan.y);
+        }
+        if(this.container.keyboard.allKeys[SDLK_UP].isPressed) {
+            this.pan.y += 14;
+        }
+        if(this.container.keyboard.allKeys[SDLK_RIGHT].isPressed) {
+            this.pan.x -= 14;
+        }
+        if(this.container.keyboard.allKeys[SDLK_DOWN].isPressed) {
+            this.pan.y -= 14;
+        }
+        if(this.container.keyboard.allKeys[SDLK_LEFT].isPressed) {
+            this.pan.x += 14;
         }
     }
 
