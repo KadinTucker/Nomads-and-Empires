@@ -15,10 +15,15 @@ class Town {
     iVector location; ///The location of the town on the map
     Town[] connections; ///All of the connections to other towns
     string name; ///The name of this town
+    Surface nameLabel; ///The label of the town's name
+    Surface nameShadow; ///The label of the town's name's shadow
 
     this(iVector location, NameSet nameset) {
         this.location = location;
         this.name = generateName(nameset);
+        Font font = new Font("res/Cantarell-Regular.ttf", 24);
+        this.nameLabel = font.renderTextSolid(this.name, Color(255, 255, 255));
+        this.nameShadow = font.renderTextSolid(this.name);
     }
 
 }

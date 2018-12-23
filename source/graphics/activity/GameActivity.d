@@ -51,13 +51,15 @@ class GameActivity : Activity {
     }
 
     private void updateWorldTexture() {
-        Surface worldSurface = new Surface(250 * (aspectWidth + 1) * cast(int) sqrt(this.world.allTowns.length / cast(double) (aspectHeight * aspectWidth)), 
-                250 * (aspectHeight + 1) * cast(int) sqrt(this.world.allTowns.length / cast(double) (aspectHeight * aspectWidth)), SDL_PIXELFORMAT_RGBA32);
+        Surface worldSurface = new Surface(50 + 250 * (aspectWidth + 1) * cast(int) sqrt(this.world.allTowns.length / cast(double) (aspectHeight * aspectWidth)), 
+                50 + 250 * (aspectHeight + 1) * cast(int) sqrt(this.world.allTowns.length / cast(double) (aspectHeight * aspectWidth)), SDL_PIXELFORMAT_RGBA32);
         Surface townSurface = loadImage("res/town.png");
         worldSurface.drawColor = Color(95, 115, 55);
         worldSurface.fillRect(new iRectangle(0, 0, 250 * this.world.allTowns.length, 250 * this.world.allTowns.length));
         foreach(town; this.world.allTowns) {
             worldSurface.blit(townSurface, null, town.location.x, town.location.y);
+            worldSurface.blit(town.nameShadow, null, town.location.x + 28 - town.nameLabel.dimensions.x / 2, town.location.y + 58);
+            worldSurface.blit(town.nameLabel, null, town.location.x + 25 - town.nameLabel.dimensions.x / 2, town.location.y + 55);
         }
         this.worldTexture = new Texture(worldSurface, this.container.renderer);
     }
