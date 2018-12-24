@@ -13,7 +13,7 @@ import std.random;
 
 immutable int zoomAmt = 5; //1 / how much zoom there is relative to the component's size
 immutable int zoomLimit = 3; //how many times the window size the zoom maxes out at
-immutable double zoomMin = 0.8; //The minimum window size
+immutable double zoomMin = 1; //The minimum window size
 
 /**
  * The activity handling game functions
@@ -23,13 +23,15 @@ class GameActivity : Activity {
     World world; ///the world in this game
     iVector pan; ///The panning on the map
     iVector zoom; ///The dimensions of the component to display
+    iVector prevMouseLocation; ///The previous location of the mouse; used for panning
     Texture worldTexture; ///The texture of the world
 
     this(Display container) {
         super(container);
-        this.world = new World(12);
+        this.world = new World(24);
         this.pan = new iVector(0, 0);
         this.zoom = this.container.window.size;
+        this.prevMouseLocation = new iVector(this.container.mouse.location.x, this.container.mouse.location.x);
         this.updateWorldTexture();
     }
 
@@ -81,6 +83,21 @@ class GameActivity : Activity {
                 } else {
                     this.pan += new iVector(this.container.mouse.location.x / zoomAmt, this.container.mouse.location.y / zoomAmt);
                 }
+            }
+        }
+        if(event.type == SDL_MOUSEBUTTONDOWN) {
+            if(event.button.button == SDL_BUTTON_LEFT) {
+                this.prevMouseLocation = this.container.mouse.location - this.pan;
+            }
+        }
+        if(event.type == SDL_MOUSEBUTTONUP) {
+            if(event.button.button == SDL_BUTTON_LEFT) {
+                this.prevMouseLocation = this.container.mouse.location - this.pan;
+            }
+        }
+        else if(event.type == SDL_MOUSEMOTION) {
+            if(this.container.mouse.allButtons[SDL_BUTTON_LEFT].isPressed) {
+                this.pan = this.container.mouse.location - this.prevMouseLocation;
             }
         }
     }
