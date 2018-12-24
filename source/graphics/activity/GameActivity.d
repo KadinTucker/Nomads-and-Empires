@@ -15,6 +15,8 @@ immutable int zoomAmt = 5; //1 / how much zoom there is relative to the componen
 immutable int zoomLimit = 3; //how many times the window size the zoom maxes out at
 immutable double zoomMin = 1; //The minimum window size
 
+immutable int townSpace = 300; //The space that each town has on the map
+
 /**
  * The activity handling game functions
  */
@@ -28,7 +30,7 @@ class GameActivity : Activity {
 
     this(Display container) {
         super(container);
-        this.world = new World(24);
+        this.world = new World(36);
         this.pan = new iVector(0, 0);
         this.zoom = this.container.window.size;
         this.prevMouseLocation = new iVector(this.container.mouse.location.x, this.container.mouse.location.x);
@@ -53,11 +55,11 @@ class GameActivity : Activity {
     }
 
     private void updateWorldTexture() {
-        Surface worldSurface = new Surface(50 + 250 * (aspectWidth + 1) * cast(int) sqrt(this.world.allTowns.length / cast(double) (aspectHeight * aspectWidth)), 
-                50 + 250 * (aspectHeight + 1) * cast(int) sqrt(this.world.allTowns.length / cast(double) (aspectHeight * aspectWidth)), SDL_PIXELFORMAT_RGBA32);
+        Surface worldSurface = new Surface(cast(int) (townSpace * (aspectWidth + 1) * sqrt(this.world.allTowns.length / cast(double) (aspectHeight * aspectWidth))), 
+                cast(int) (townSpace * (aspectHeight + 1) * sqrt(this.world.allTowns.length / cast(double) (aspectHeight * aspectWidth))), SDL_PIXELFORMAT_RGBA32);
         Surface townSurface = loadImage("res/town.png");
         worldSurface.drawColor = Color(95, 115, 55);
-        worldSurface.fillRect(new iRectangle(0, 0, 250 * this.world.allTowns.length, 250 * this.world.allTowns.length));
+        worldSurface.fillRect(new iRectangle(0, 0, townSpace * this.world.allTowns.length, townSpace * this.world.allTowns.length));
         foreach(town; this.world.allTowns) {
             worldSurface.blit(townSurface, null, town.location.x, town.location.y);
             worldSurface.blit(town.nameShadow, null, town.location.x + 28 - town.nameLabel.dimensions.x / 2, town.location.y + 58);
