@@ -27,6 +27,7 @@ class GameActivity : Activity {
     iVector zoom; ///The dimensions of the component to display
     iVector prevMouseLocation; ///The previous location of the mouse; used for panning
     Texture worldTexture; ///The texture of the world
+    Town selectedTown; ///The currently selected town
 
     this(Display container) {
         super(container);
@@ -39,7 +40,7 @@ class GameActivity : Activity {
 
     override void draw() {
         this.container.renderer.copy(this.worldTexture, new iRectangle(this.pan.x, this.pan.y, this.zoom.x, this.zoom.y));
-        this.container.renderer.drawColor = Color(95, 115, 55);
+        this.container.renderer.drawColor = Color(75, 115, 35);
         if(this.container.keyboard.allKeys[SDLK_UP].isPressed) {
             this.pan.y += 14;
         }
@@ -58,12 +59,16 @@ class GameActivity : Activity {
         Surface worldSurface = new Surface(cast(int) (townSpace * (aspectWidth + 1) * sqrt(this.world.allTowns.length / cast(double) (aspectHeight * aspectWidth))), 
                 cast(int) (townSpace * (aspectHeight + 1) * sqrt(this.world.allTowns.length / cast(double) (aspectHeight * aspectWidth))), SDL_PIXELFORMAT_RGBA32);
         Surface townSurface = loadImage("res/town.png");
+        Surface selectionSurface = loadImage("res/selection.png");
         worldSurface.drawColor = Color(95, 115, 55);
         worldSurface.fillRect(new iRectangle(0, 0, townSpace * this.world.allTowns.length, townSpace * this.world.allTowns.length));
         foreach(town; this.world.allTowns) {
             worldSurface.blit(townSurface, null, town.location.x, town.location.y);
             worldSurface.blit(town.nameShadow, null, town.location.x + 28 - town.nameLabel.dimensions.x / 2, town.location.y + 58);
             worldSurface.blit(town.nameLabel, null, town.location.x + 25 - town.nameLabel.dimensions.x / 2, town.location.y + 55);
+        }
+        if(this.selectedTown !is null) {
+            worldSurface.blit(selectionSurface, null, this.selectedTown.location.x - 5, this.selectedTown.location.y - 5);
         }
         this.worldTexture = new Texture(worldSurface, this.container.renderer);
     }
@@ -89,7 +94,21 @@ class GameActivity : Activity {
         }
         if(event.type == SDL_MOUSEBUTTONDOWN) {
             if(event.button.button == SDL_BUTTON_LEFT) {
+                //For panning
                 this.prevMouseLocation = this.container.mouse.location - this.pan;
+                //Selecting town
+                bool selected;
+                foreach(town; this.world.allTowns) {
+                    if(town.boundingBox.contains(this.getAdjustedMouseLocation())) {
+                        selected = true;
+                        this.selectedTown = town;
+                        break;
+                    }
+                }
+                if(!selected) {
+                    this.selectedTown = null;
+                }
+                this.updateWorldTexture;
             }
         }
         if(event.type == SDL_MOUSEBUTTONUP) {
@@ -102,6 +121,11 @@ class GameActivity : Activity {
                 this.pan = this.container.mouse.location - this.prevMouseLocation;
             }
         }
+    }
+
+    iVector getAdjustedMouseLocation() {
+        return new iVector(cast(int) (cast(double) this.worldTexture.dimensions.x / this.zoom.x * (this.container.mouse.location.x - this.pan.x)),
+                cast(int) (cast(double) this.worldTexture.dimensions.y / this.zoom.y * (this.container.mouse.location.y - this.pan.y)));
     }
 
 }

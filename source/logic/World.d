@@ -32,26 +32,6 @@ class World {
                         townSpace * y + uniform(cast(int) (townSpace * 0.4), cast(int) (townSpace * 0.6))), french);
             }
         }
-        //Connection generation
-        for(int i = 0; i < this.allTowns.length; i++) {
-            double[] distances; 
-            for(int j = 0; j < this.allTowns.length; j++) {
-                if(i != j) {
-                    distances ~= (this.allTowns[i].location - this.allTowns[j].location).magnitude;
-                }
-            }
-            int[] mins;
-            for(int k = 0; k < 2; k++) {
-                int min = 0; 
-                for(int d = 0; d < distances.length; d++) {
-                    if(!mins.canFind(d) && distances[d] < distances[min]) {
-                        min = d;
-                    }
-                }
-                mins ~= min;
-                this.allTowns[i].connections ~= this.allTowns[min];
-            }
-        }
     }
 
 }

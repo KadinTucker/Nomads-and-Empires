@@ -13,6 +13,7 @@ import std.random;
 class Town {
 
     iVector location; ///The location of the town on the map
+    iRectangle boundingBox; ///The bounding box of the town for selection
     Town[] connections; ///All of the connections to other towns
     string name; ///The name of this town
     Surface nameLabel; ///The label of the town's name
@@ -20,6 +21,7 @@ class Town {
 
     this(iVector location, NameSet nameset) {
         this.location = location;
+        this.boundingBox = new iRectangle(location.x, location.y, 50, 50);
         this.name = generateName(nameset);
         Font font = new Font("res/Cantarell-Regular.ttf", 24);
         this.nameLabel = font.renderTextSolid(this.name, Color(255, 255, 255));
