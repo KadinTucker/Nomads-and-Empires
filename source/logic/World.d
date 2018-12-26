@@ -28,8 +28,8 @@ class World {
         double baseDimension = sqrt(numTowns / cast(double) (aspectHeight * aspectWidth));
         for(int x = 0; x < cast(int) (baseDimension * aspectWidth + 1); x++) {
             for(int y = 0; y < cast(int) (baseDimension * aspectHeight + 1); y++) {
-                this.allTowns ~= new Town(new iVector(townSpace * x + uniform(0, townSpace), 
-                        townSpace * y + uniform(cast(int) (townSpace * 0.4), cast(int) (townSpace * 0.6))), french);
+                this.allTowns ~= new Town(new iVector(townSpace * x + uniform(townSpace / 4, townSpace * 3 / 4), 
+                        townSpace * y + uniform(townSpace / 4, townSpace * 3 / 4)), french);
             }
         }
     }

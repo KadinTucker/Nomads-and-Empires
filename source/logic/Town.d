@@ -14,18 +14,37 @@ class Town {
 
     iVector location; ///The location of the town on the map
     iRectangle boundingBox; ///The bounding box of the town for selection
-    Town[] connections; ///All of the connections to other towns
-    string name; ///The name of this town
     Surface nameLabel; ///The label of the town's name
     Surface nameShadow; ///The label of the town's name's shadow
+    Surface nameBackground; ///The background of the name label
 
+    Player owner; ///The player owning this town
+    string name; ///The name of this town
+    int level; ///The level of this town
+
+    /**
+     * Constructs a new town a the given location,
+     * generating a random name from the given name set
+     */
     this(iVector location, NameSet nameset) {
         this.location = location;
         this.boundingBox = new iRectangle(location.x, location.y, 50, 50);
         this.name = generateName(nameset);
+        this.setNameLabel();
+    }
+
+    /**
+     * Sets the town's labels for its name
+     * Updates whenever owner or name should change
+     */
+    void setNameLabel() {
         Font font = new Font("res/Cantarell-Regular.ttf", 24);
         this.nameLabel = font.renderTextSolid(this.name, Color(255, 255, 255));
         this.nameShadow = font.renderTextSolid(this.name);
+        Color nameColor = (this.owner is null)? Color(125, 125, 125) : this.owner.color;
+        this.nameBackground = new Surface(this.nameLabel.dimensions.x, this.nameLabel.dimensions.y);
+        this.nameBackground.drawColor = nameColor;
+        this.nameBackground.fillRect(new iRectangle(0, 0, this.nameLabel.dimensions.x, this.nameLabel.dimensions.y));
     }
 
 }

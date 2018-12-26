@@ -12,10 +12,10 @@ import std.random;
     //         previous.b + uniform(-(previous.b - 10) / 270, (previous.b - 10) / 270));
 
 immutable int zoomAmt = 5; //1 / how much zoom there is relative to the component's size
-immutable int zoomLimit = 3; //how many times the window size the zoom maxes out at
+immutable int zoomLimit = 4; //how many times the window size the zoom maxes out at
 immutable double zoomMin = 1; //The minimum window size
 
-immutable int townSpace = 300; //The space that each town has on the map
+immutable int townSpace = 500; //The space that each town has on the map
 
 /**
  * The activity handling game functions
@@ -27,19 +27,22 @@ class GameActivity : Activity {
     iVector zoom; ///The dimensions of the component to display
     iVector prevMouseLocation; ///The previous location of the mouse; used for panning
     Texture worldTexture; ///The texture of the world
+    Texture overlayTexture; ///The texture of the selection of a town
     Town selectedTown; ///The currently selected town
 
     this(Display container) {
         super(container);
-        this.world = new World(36);
+        this.world = new World(24);
         this.pan = new iVector(0, 0);
-        this.zoom = this.container.window.size;
         this.prevMouseLocation = new iVector(this.container.mouse.location.x, this.container.mouse.location.x);
         this.updateWorldTexture();
+        this.updateOverlayTexture();
+        this.zoom = this.zoom = new iVector(zoomLimit * this.container.window.size.x, zoomLimit * this.container.window.size.y);
     }
 
     override void draw() {
         this.container.renderer.copy(this.worldTexture, new iRectangle(this.pan.x, this.pan.y, this.zoom.x, this.zoom.y));
+        this.container.renderer.copy(this.overlayTexture, new iRectangle(this.pan.x, this.pan.y, this.zoom.x, this.zoom.y));
         this.container.renderer.drawColor = Color(75, 115, 35);
         if(this.container.keyboard.allKeys[SDLK_UP].isPressed) {
             this.pan.y += 14;
@@ -59,18 +62,24 @@ class GameActivity : Activity {
         Surface worldSurface = new Surface(cast(int) (townSpace * (aspectWidth + 1) * sqrt(this.world.allTowns.length / cast(double) (aspectHeight * aspectWidth))), 
                 cast(int) (townSpace * (aspectHeight + 1) * sqrt(this.world.allTowns.length / cast(double) (aspectHeight * aspectWidth))), SDL_PIXELFORMAT_RGBA32);
         Surface townSurface = loadImage("res/town.png");
-        Surface selectionSurface = loadImage("res/selection.png");
         worldSurface.drawColor = Color(95, 115, 55);
         worldSurface.fillRect(new iRectangle(0, 0, townSpace * this.world.allTowns.length, townSpace * this.world.allTowns.length));
         foreach(town; this.world.allTowns) {
             worldSurface.blit(townSurface, null, town.location.x, town.location.y);
+            worldSurface.blit(town.nameBackground, null, town.location.x + 25 - town.nameLabel.dimensions.x / 2, town.location.y + 55);
             worldSurface.blit(town.nameShadow, null, town.location.x + 28 - town.nameLabel.dimensions.x / 2, town.location.y + 58);
             worldSurface.blit(town.nameLabel, null, town.location.x + 25 - town.nameLabel.dimensions.x / 2, town.location.y + 55);
         }
-        if(this.selectedTown !is null) {
-            worldSurface.blit(selectionSurface, null, this.selectedTown.location.x - 5, this.selectedTown.location.y - 5);
-        }
         this.worldTexture = new Texture(worldSurface, this.container.renderer);
+    }
+
+    private void updateOverlayTexture() {
+        Surface overlaySurface = new Surface(cast(int) (townSpace * (aspectWidth + 1) * sqrt(this.world.allTowns.length / cast(double) (aspectHeight * aspectWidth))), 
+                cast(int) (townSpace * (aspectHeight + 1) * sqrt(this.world.allTowns.length / cast(double) (aspectHeight * aspectWidth))), SDL_PIXELFORMAT_RGBA32);
+        if(this.selectedTown !is null) {
+            overlaySurface.blit(loadImage("res/selection.png"), null, this.selectedTown.location.x, this.selectedTown.location.y);
+        }
+        this.overlayTexture = new Texture(overlaySurface, this.container.renderer);
     }
 
     override void handleEvent(SDL_Event event) {
@@ -96,10 +105,15 @@ class GameActivity : Activity {
             if(event.button.button == SDL_BUTTON_LEFT) {
                 //For panning
                 this.prevMouseLocation = this.container.mouse.location - this.pan;
+            }
+        }
+        if(event.type == SDL_MOUSEBUTTONUP) {
+            if(event.button.button == SDL_BUTTON_LEFT) {
+                this.prevMouseLocation = this.container.mouse.location - this.pan;
                 //Selecting town
                 bool selected;
                 foreach(town; this.world.allTowns) {
-                    if(town.boundingBox.contains(this.getAdjustedMouseLocation())) {
+                    if(town.boundingBox.contains(this.getAdjustedLocation(this.container.mouse.location))) {
                         selected = true;
                         this.selectedTown = town;
                         break;
@@ -108,12 +122,7 @@ class GameActivity : Activity {
                 if(!selected) {
                     this.selectedTown = null;
                 }
-                this.updateWorldTexture;
-            }
-        }
-        if(event.type == SDL_MOUSEBUTTONUP) {
-            if(event.button.button == SDL_BUTTON_LEFT) {
-                this.prevMouseLocation = this.container.mouse.location - this.pan;
+                updateOverlayTexture();
             }
         }
         else if(event.type == SDL_MOUSEMOTION) {
@@ -123,9 +132,9 @@ class GameActivity : Activity {
         }
     }
 
-    iVector getAdjustedMouseLocation() {
-        return new iVector(cast(int) (cast(double) this.worldTexture.dimensions.x / this.zoom.x * (this.container.mouse.location.x - this.pan.x)),
-                cast(int) (cast(double) this.worldTexture.dimensions.y / this.zoom.y * (this.container.mouse.location.y - this.pan.y)));
+    iVector getAdjustedLocation(iVector location) {
+        return new iVector(cast(int) (cast(double) this.worldTexture.dimensions.x / this.zoom.x * (location.x - this.pan.x)),
+                cast(int) (cast(double) this.worldTexture.dimensions.y / this.zoom.y * (location.y - this.pan.y)));
     }
 
 }
