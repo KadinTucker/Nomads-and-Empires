@@ -23,6 +23,10 @@ class Player {
     PlayerState state; ///The state this player is in
     Town[] controlled; ///The towns under this player's control
 
+    int gold; ///The amount of gold this player has
+    int[] culture; ///A list of all of the culture values the player has in each era
+    int totalCulture; ///The total culture this player has accumulated
+
     /**
      * Constructs a new player
      */

@@ -15,8 +15,6 @@ immutable int zoomAmt = 5; //1 / how much zoom there is relative to the componen
 immutable int zoomLimit = 4; //how many times the window size the zoom maxes out at
 immutable double zoomMin = 1; //The minimum window size
 
-immutable int townSpace = 500; //The space that each town has on the map
-
 /**
  * The activity handling game functions
  */
@@ -58,28 +56,19 @@ class GameActivity : Activity {
         }
     }
 
+    /**
+     * Updates the world texture, containing the map and towns
+     * TODO:
+     */
     private void updateWorldTexture() {
-        Surface worldSurface = new Surface(cast(int) (townSpace * (aspectWidth + 1) * sqrt(this.world.allTowns.length / cast(double) (aspectHeight * aspectWidth))), 
-                cast(int) (townSpace * (aspectHeight + 1) * sqrt(this.world.allTowns.length / cast(double) (aspectHeight * aspectWidth))), SDL_PIXELFORMAT_RGBA32);
-        Surface townSurface = loadImage("res/town.png");
-        worldSurface.drawColor = Color(95, 115, 55);
-        worldSurface.fillRect(new iRectangle(0, 0, townSpace * this.world.allTowns.length, townSpace * this.world.allTowns.length));
-        foreach(town; this.world.allTowns) {
-            worldSurface.blit(townSurface, null, town.location.x, town.location.y);
-            worldSurface.blit(town.nameBackground, null, town.location.x + 25 - town.nameLabel.dimensions.x / 2, town.location.y + 55);
-            worldSurface.blit(town.nameShadow, null, town.location.x + 28 - town.nameLabel.dimensions.x / 2, town.location.y + 58);
-            worldSurface.blit(town.nameLabel, null, town.location.x + 25 - town.nameLabel.dimensions.x / 2, town.location.y + 55);
-        }
-        this.worldTexture = new Texture(worldSurface, this.container.renderer);
+
     }
 
+    /**
+     * Updates the overlay, containing the armies and caravans
+     */
     private void updateOverlayTexture() {
-        Surface overlaySurface = new Surface(cast(int) (townSpace * (aspectWidth + 1) * sqrt(this.world.allTowns.length / cast(double) (aspectHeight * aspectWidth))), 
-                cast(int) (townSpace * (aspectHeight + 1) * sqrt(this.world.allTowns.length / cast(double) (aspectHeight * aspectWidth))), SDL_PIXELFORMAT_RGBA32);
-        if(this.selectedTown !is null) {
-            overlaySurface.blit(loadImage("res/selection.png"), null, this.selectedTown.location.x, this.selectedTown.location.y);
-        }
-        this.overlayTexture = new Texture(overlaySurface, this.container.renderer);
+
     }
 
     override void handleEvent(SDL_Event event) {
@@ -110,18 +99,7 @@ class GameActivity : Activity {
         if(event.type == SDL_MOUSEBUTTONUP) {
             if(event.button.button == SDL_BUTTON_LEFT) {
                 this.prevMouseLocation = this.container.mouse.location - this.pan;
-                //Selecting town
-                bool selected;
-                foreach(town; this.world.allTowns) {
-                    if(town.boundingBox.contains(this.getAdjustedLocation(this.container.mouse.location))) {
-                        selected = true;
-                        this.selectedTown = town;
-                        break;
-                    }
-                }
-                if(!selected) {
-                    this.selectedTown = null;
-                }
+                //Selecting towns: TODO
                 updateOverlayTexture();
             }
         }
@@ -132,7 +110,10 @@ class GameActivity : Activity {
         }
     }
 
-    iVector getAdjustedLocation(iVector location) {
+    /**
+     * Implementation of the Camera method 'project': gets coordinates on this component from screen coordinates
+     */
+    iVector project(iVector location) {
         return new iVector(cast(int) (cast(double) this.worldTexture.dimensions.x / this.zoom.x * (location.x - this.pan.x)),
                 cast(int) (cast(double) this.worldTexture.dimensions.y / this.zoom.y * (location.y - this.pan.y)));
     }

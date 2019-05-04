@@ -6,10 +6,12 @@ import std.algorithm;
 import std.math;
 import std.random;
 
-//The characteristic width and height of a world
-//Sets the rough arrangement of towns
-immutable int aspectWidth = 4;
-immutable int aspectHeight = 3; 
+//The characteristic ratio of width to height
+// = w/h of the world
+immutable double aspectRatio = 1.7;
+
+immutable int townDensity = 500; //The space that each town has on the map
+immutable double townMargin = 0.25; //The padding around each town
 
 /**
  * The world containing and creating a network of towns
@@ -17,19 +19,23 @@ immutable int aspectHeight = 3;
  */
 class World {
 
-    Town[] allTowns; ///All of the towns in the world
+    Town[][] allTowns; ///All of the towns in the world
 
     /**
      * Generates the world and all of its towns
      * Generates the given number of towns
      * Doesn't generate that number exactly due to size ratios, but generates roughly that many
+     * Uses the aspect ratio satisfying the two equations: a = x/y, t = xy
      */
     this(int numTowns) {
-        double baseDimension = sqrt(numTowns / cast(double) (aspectHeight * aspectWidth));
-        for(int x = 0; x < cast(int) (baseDimension * aspectWidth + 1); x++) {
-            for(int y = 0; y < cast(int) (baseDimension * aspectHeight + 1); y++) {
-                this.allTowns ~= new Town(new iVector(townSpace * x + uniform(townSpace / 4, townSpace * 3 / 4), 
-                        townSpace * y + uniform(townSpace / 4, townSpace * 3 / 4)), french);
+        int x = cast(int) (aspectRatio * sqrt(numTowns / aspectRatio));
+        int y = cast(int) sqrt(numTowns / aspectRatio);
+        for(int i = 0; i < x; i++) {
+            allTowns ~= null;
+            for(int j = 0; j < y; j++) {
+                allTowns[i] ~= new Town(new iVector(
+                        cast(int) (townDensity * (i + uniform(0, 2 * townMargin) + townMargin)),
+                        cast(int) (townDensity * (j + uniform(0, 2 * townMargin) + townMargin))), french);
             }
         }
     }

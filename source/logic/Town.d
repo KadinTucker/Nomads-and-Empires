@@ -20,7 +20,16 @@ class Town {
 
     Player owner; ///The player owning this town
     string name; ///The name of this town
-    int level; ///The level of this town
+
+    int market; ///The level of the markets of this town
+    int barracks; ///The level of the barracks of this town
+    int culture; ///The level of the culture of this town
+    int idlePop; ///The amount of idle population
+
+    Town[] tradeDestintions; ///The towns with which this town is trading
+    bool attacked; ///Whether or not this town is under attack
+    int growthProgress; ///The progress this town has toward growth
+    int fortification; ///The level of fortification of this town
 
     /**
      * Constructs a new town a the given location,
@@ -31,6 +40,28 @@ class Town {
         this.boundingBox = new iRectangle(location.x, location.y, 50, 50);
         this.name = generateName(nameset);
         this.setNameLabel();
+    }
+
+    /**
+     * Gets the total population of this town
+     */
+    @property int population() {
+        return this.market + this.barracks + this.culture + this.idlePop;
+    }
+
+    /**
+     * Causes the town to grow
+     * The growth rate is constant, but the amount needed grows slowly with population
+     */
+    void growAndProduce() {
+        if(this.attacked) {
+            return;
+        }
+        this.growthProgress += 1;
+        if(this.growthProgress >= 1800 + this.population * 180) {
+            this.growthProgress -= 1800 + this.population * 180;
+            this.idlePop += 1;
+        }
     }
 
     /**
