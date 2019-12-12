@@ -7,3 +7,8 @@ __test__*__
 *.dll
 dub.selections.json
 *.exe
+/target
+**/*.rs.bk
+Cargo.lock
+*.txt
+*.py
